@@ -7,4 +7,4 @@ test('Basic arithmetic test to verify CI test runner', () => {
 
 // Test secret: ghp_1234567890abcdefghijklmnopqrstuvwxyzABCDEF
 
-// ghp_fakeToken1234567890abcdef
+const apiKey = "ghp_1234567890abcdefghijklmnopqrstuvwxyzABCDEF";
