@@ -48,3 +48,23 @@ TASK 2 — Build the CI Pipeline
 
 6. Why a Failing Step Stops the Job and Forms a Security Gate (~2-3 sentences)
 - When a step fails, it immediately halts the execution of all subsequent steps in that job and marks the overall build status as failed. This behavior is foundational to a security gate because it prevents flawed, broken, or insecure code from progressing any further down the pipeline toward deployment.
+
+TASK 3 — Secret Detection
+
+1. Why a Deleted Secret Remains Compromised (~2-3 sentences)
+- A secret committed to a git repository remains permanently compromised even if deleted in a later commit because git preserves the entire commit history. Anyone with clone or read access to the repository can use git log or history traversal commands to extract previous versions of the files containing the exposed credential.
+
+2. Chosen Automated Secret Detection Method
+- We enabled GitHub Secret Scanning with push protection. This was chosen because it integrates natively into GitHub, blocks developers from pushing secrets in real-time before they ever touch the remote repository, and requires zero extra third-party workflow maintenance.
+
+3. Demonstration and Push Blocking Evidence
+- Evidence of Push Blocking: When attempting to push a commit containing a simulated GitHub Personal Access Token (`ghp_fakeTokenExample1234567890abcdef`), git immediately rejected the push with a `GH013: Secret detected` error message, displaying the exact file name, line number, and secret type in the terminal output.
+
+4. Correct Response Process for a Real Exposed Secret
+- Step 1: Immediately revoke or invalidate the leaked secret in the provider console (first step because revocation instantly neutralizes the active threat).
+- Step 2: Check access logs to determine if the credential was exploited during the exposure window.
+- Step 3: Remove the secret from the repository history using tools like `git-filter-repo` or BFG Repo-Cleaner if necessary, and force-push clean history.
+- Step 4: Issue a post-incident review to prevent recurrence.
+
+5. Where Application Secrets Should Live Instead (~2-3 sentences)
+- For local development, secrets should live in local environment variables defined within a `.gitignore`-protected `.env` file rather than hardcoded in source files. For the pipeline and production environments, secrets must be securely stored using encrypted platform secret managers, such as GitHub Actions Secrets or cloud vault services, and injected dynamically at runtime.
