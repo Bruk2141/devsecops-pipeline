@@ -1,0 +1,50 @@
+TASK 1 — CI/CD Concepts
+
+1. Continuous Integration vs. Continuous Delivery vs. Continuous Deployment (~2-3 sentences each)
+- Continuous Integration (CI) is the practice where developers frequently merge code changes into a shared central repository multiple times a day, automatically triggering automated builds and tests to detect integration bugs early. 
+- Continuous Delivery (CD) takes CI a step further by automatically building, testing, and preparing validated code artifacts for release, but leaves the final deployment to production as a manual business decision. 
+- Continuous Deployment fully automates the release cycle, deploying every code change that passes all automated pipeline stages directly into production without human intervention. (Explicit distinction: Delivery prepares code for manual production release, whereas Deployment automates production rollout entirely).
+
+2. Four Problems of Unchecked Merges and Their CI/CD Fixes
+- Problem 1: Integration conflicts and broken builds reaching the main branch. ➔ Fixed by Continuous Integration automated test suites running on every pull request.
+- Problem 2: Accidental exposure of secrets or API keys in source code. ➔ Fixed by automated secret scanning and push protection checks.
+- Problem 3: Introduction of high-severity vulnerable npm packages. ➔ Fixed by automated dependency scanning stages.
+- Problem 4: Lack of accountability and code review oversight. ➔ Fixed by branch protection rules and mandatory status checks.
+
+3. Shifting Left (~3-4 sentences)
+- Running security checks on a pull request before merging—known as "shifting left"—is critical because it catches vulnerabilities and bugs early in the software development lifecycle, right when the code is written. Waiting until after the merge to scan code on the main branch means flaws are already integrated into the production baseline, making them significantly more expensive, complex, and time-consuming to remediate.
+
+4. Definitions of Workflow Terms (One sentence each)
+- Workflow: An automated configurable procedure defined in a YAML file that specifies one or more jobs to run in GitHub Actions.
+- Job: A set of steps executed on the same runner that accomplish a specific portion of the workflow.
+- Step: An individual task or command executed sequentially within a job.
+- Runner: A virtual machine (or container instance) hosted by GitHub that executes the workflow jobs.
+- Action: A reusable, pre-built unit of code package (like checkout or setup-node) designed to be run as a step.
+
+5. Local `npm audit` vs. Pipeline Dependency Scanning (~3-4 sentences)
+- Running `npm audit` manually on a local laptop before pushing is not the same as a pipeline dependency scanning stage because local checks rely entirely on developer discipline and can easily be forgotten or bypassed. Furthermore, a local check provides no enforcement mechanism to block code from merging if vulnerabilities are present. A pipeline stage, by contrast, is fully automated, runs independently on every pull request, and acts as an unbypassable security gate.
+
+TASK 2 — Build the CI Pipeline
+
+3. Design Decisions (~1 sentence each)
+- Why npm ci rather than npm install: We used npm ci (clean install) because it reads directly from package-lock.json to ensure a repeatable, reliable, and deterministic dependency installation without modifying the lock file.
+- Why the workflow location must be .github/workflows/: GitHub Actions is hardcoded to look specifically inside the .github/workflows/ directory in the repository root to discover and execute YAML workflow configurations.
+
+4. Successful Pipeline Run Description
+- Pipeline URL: [Paste your GitHub Actions workflow run URL here]
+- Step Breakdown:
+  1. Set up job: Provisions the GitHub-hosted virtual machine runner.
+  2. Checkout code: Uses actions/checkout to clone the repository code into the runner workspace.
+  3. Set up Node.js: Configures the specified Node.js runtime version (e.g., v20).
+  4. Install dependencies: Executes npm ci to cleanly install project dependencies.
+  5. Run tests: Executes the automated test suite to verify code correctness.
+  6. Run linter: Checks code formatting and syntax rules.
+  7. Build application: Compiles or verifies the build output.
+
+5. Breaking and Fixing the Pipeline
+- Evidence of Red Run: [Paste URL or describe the failed run where a test failed on purpose]
+- Which step failed and why: The "Run Tests" step failed because a deliberate assertion or test condition was broken, causing Jest/Mocha to exit with a non-zero exit code.
+- Fix and Green Run: Reverting the broken test code restored a green passing build.
+
+6. Why a Failing Step Stops the Job and Forms a Security Gate (~2-3 sentences)
+- When a step fails, it immediately halts the execution of all subsequent steps in that job and marks the overall build status as failed. This behavior is foundational to a security gate because it prevents flawed, broken, or insecure code from progressing any further down the pipeline toward deployment.
